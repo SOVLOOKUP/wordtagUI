@@ -8,8 +8,8 @@
 	let words: Array<string> = [];
 	let loading = false;
 
-	const parseText = async () => {
-		if (text.length <= 2) return;
+	const parseText = async (e: KeyboardEvent) => {
+		if (text.length <= 2 || e.key !== 'Enter') return;
 		loading = true;
 		try {
 			const a = await axios.post(
@@ -36,15 +36,19 @@
 
 <br />
 <div class="container">
-	<div>
-		<button class="waves-effect waves-light btn blue" on:click={parseText}>进行智能解析！</button>
-	</div>
+	<br />
+	<h5>公安案件文本智能解析系统</h5>
 	<br />
 
-	<textarea placeholder="请输入案件文本" bind:value={text} use:autoresize />
-
-	<br /><br />
-	<div>解析结果：</div>
+	<div>
+		<textarea
+			class="textarea"
+			placeholder="请输入案件文本 | 键入 Ctrl + 回车 解析🔍"
+			bind:value={text}
+			on:keypress={parseText}
+			use:autoresize
+		/>
+	</div>
 
 	{#if !loading}
 		<div class="wordlist">
@@ -54,14 +58,14 @@
 					<div class="label">{word.wordtag_label}</div>
 					<div class="termid">{parseTerm(word?.termid)}</div>
 				</div>
-			{:else}
-				<div class="logoimg">
-					<img width="100%" alt="logo" src="/favicon.png" />
-				</div>
 			{/each}
 		</div>
 	{:else}
-		<div class="loading"><RingLoader size="60" color="#006eff" unit="px" duration="1s" /></div>
+		<br />
+		<div class="loading">
+			<!-- <div>正在智能解析中</div> -->
+			<RingLoader size="60" color="#006eff" unit="px" duration="1s" />
+		</div>
 	{/if}
 </div>
 
@@ -73,7 +77,11 @@
 		font-style: normal;
 	}
 
-	textarea {
+	h5 {
+		text-align: center;
+	}
+
+	.textarea {
 		resize: none;
 
 		box-sizing: border-box;
@@ -103,7 +111,7 @@
 		text-align: left;
 	}
 
-	textarea:focus {
+	.textarea:focus {
 		border-color: rgba(82, 168, 236, 0.8);
 		outline: 0;
 		outline: thin dotted \9;
@@ -136,7 +144,6 @@
 	.wordlist {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
 	}
 
 	.container {
@@ -160,9 +167,5 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-	}
-
-	.logoimg {
-		width: 40%;
 	}
 </style>
